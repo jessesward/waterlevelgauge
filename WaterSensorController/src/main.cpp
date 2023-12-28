@@ -6,10 +6,7 @@
 
 #include "NormalizeBetween.h"
 #include "OLED_Display.h"
-
-// Replace with your network credentials
-const char *ssid = "SkolVikes_EXT";
-const char *password = "Kipdebfamily";
+#include "config.h"
 
 user::OLED_Display display;       // Create an instance of the OLED_Display class
 AsyncWebServer server(80);        // Create AsyncWebServer object on port 80
