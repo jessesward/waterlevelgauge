@@ -114,10 +114,8 @@ void setup()
   server.begin();
 }
 
-String test = "Test Message";
-void loop()
+int calculateDistanceCM()
 {
-
   // Clears the trigPin
   digitalWrite(TRIG_PIN, LOW);
   delayMicroseconds(2);
@@ -129,19 +127,19 @@ void loop()
   long duration = pulseIn(ECHO_PIN, HIGH);
   // Calculating the distance
   int distance = duration * 0.034 / 2;
-  double percent = normalizeBetween(distance, MAX_WATER, MIN_WATER, 100, 0);
-  // Prints the distance on the Serial Monitor
-  String unit = "%";
-  String percentString = String(percent);
-  String percentUnits = percentString + unit;
-  // Serial.println(sentence);
-  Serial.println(distance);
+  return distance;
+}
+void loop()
+{
+
+  int distance = calculateDistanceCM();
+  double tankPercent = normalizeBetween(distance, MAX_WATER, MIN_WATER, 100, 0);
+  String percentUnits = String(tankPercent) + "%";
 
   if ((millis() - lastTime) > timerDelay)
   {
-    String millisString = String(millis());
     display.write(percentUnits);
-    String data = "{ \"distance\": \"" + String(percent) + "\"}";
+    String data = "{ \"distance\": \"" + String(tankPercent) + "\"}";
 
     notifyClients(data);
     lastTime = millis();
