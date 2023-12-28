@@ -21,15 +21,10 @@ IPAddress secondaryDNS(8, 8, 4, 4); // optional
 #define ECHO_PIN 34
 #define MAX_WATER 4
 #define MIN_WATER 30
-long duration;
-int distance;
 
-int value = 0; // variable to store the sensor value
 // Timer variables
 unsigned long lastTime = 0;
 unsigned long timerDelay = 1000;
-const int trigPin = 9;
-const int echoPin = 10;
 
 // Initialize SPIFFS
 void initSPIFFS()
@@ -131,9 +126,9 @@ void loop()
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
   // Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(ECHO_PIN, HIGH);
+  long duration = pulseIn(ECHO_PIN, HIGH);
   // Calculating the distance
-  distance = duration * 0.034 / 2;
+  int distance = duration * 0.034 / 2;
   double percent = normalizeBetween(distance, MAX_WATER, MIN_WATER, 100, 0);
   // Prints the distance on the Serial Monitor
   String unit = "%";
