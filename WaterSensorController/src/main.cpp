@@ -132,12 +132,11 @@ int calculateDistanceCM()
 void loop()
 {
 
-  int distance = calculateDistanceCM();
-  double tankPercent = normalizeBetween(distance, MAX_WATER, MIN_WATER, 100, 0);
-  String percentUnits = String(tankPercent) + "%";
-
   if ((millis() - lastTime) > timerDelay)
   {
+    int distance = calculateDistanceCM();
+    double tankPercent = normalizeBetween(distance, MAX_WATER, MIN_WATER, 100, 0);
+    String percentUnits = String(tankPercent) + "%";
     display.write(percentUnits);
     String data = "{ \"distance\": \"" + String(tankPercent) + "\"}";
 
