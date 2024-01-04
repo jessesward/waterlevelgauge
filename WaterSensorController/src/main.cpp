@@ -8,19 +8,21 @@
 #include "OLED_Display.h"
 #include "config.h"
 
-user::OLED_Display display;       // Create an instance of the OLED_Display class
-AsyncWebServer server(80);        // Create AsyncWebServer object on port 80
-AsyncWebSocket ws("/ws");         // Create a WebSocket object
-IPAddress local_IP(10, 0, 0, 33); // Set your Static IP address
-IPAddress gateway(10, 0, 0, 1);   // Set your Gateway IP address
-IPAddress subnet(255, 255, 0, 0);
+user::OLED_Display display;            // Create an instance of the OLED_Display class
+AsyncWebServer server(80);             // Create AsyncWebServer object on port 80
+AsyncWebSocket ws("/ws");              // Create a WebSocket object
+IPAddress local_IP(192, 168, 86, 111); // Set your Static IP address
+IPAddress gateway(192, 168, 86, 1);    // Set your Gateway IP address
+IPAddress subnet(255, 255, 255, 0);
 IPAddress primaryDNS(8, 8, 8, 8);   // optional
 IPAddress secondaryDNS(8, 8, 4, 4); // optional
 
 #define TRIG_PIN 32
 #define ECHO_PIN 34
-#define MAX_WATER 4
-#define MIN_WATER 30
+#define DISPLAY_SDA 26
+#define DISPLAY_SLC 27
+#define MAX_WATER 3
+#define MIN_WATER 17
 
 // Timer variables
 unsigned long lastTime = 0;
@@ -36,7 +38,11 @@ void initSPIFFS()
   Serial.println("SPIFFS mounted successfully");
 }
 
-// Initialize WiFi
+void onWifiConnected(WiFiEvent_t wifi_event, WiFiEventInfo_t wifi_info)
+{
+  Serial.println(WiFi.localIP());
+}
+
 void initWiFi()
 {
   // Configures static IP address
@@ -46,13 +52,8 @@ void initWiFi()
   }
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi ..");
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    Serial.print('.');
-    delay(1000);
-  }
-  Serial.println(WiFi.localIP());
+  Serial.println("Connecting to WiFi ...");
+  WiFi.onEvent(onWifiConnected, ARDUINO_EVENT_WIFI_STA_GOT_IP);
 }
 
 void notifyClients(String sensorReadings)
@@ -99,7 +100,7 @@ void setup()
   initWiFi();
   initSPIFFS();
   initWebSocket();
-  display.init(26, 27);
+  display.init(DISPLAY_SDA, DISPLAY_SLC);
 
   pinMode(TRIG_PIN, OUTPUT); // Sets the trigPin as an Output
   pinMode(ECHO_PIN, INPUT);  // Sets the echoPin as an Input
@@ -136,9 +137,11 @@ void loop()
   {
     int distance = calculateDistanceCM();
     double tankPercent = normalizeBetween(distance, MAX_WATER, MIN_WATER, 100, 0);
-    String percentUnits = String(tankPercent) + "%";
+    double tankMin = (tankPercent < 100) ? tankPercent : 100;
+    String percentUnits = String(tankMin) + "%";
+    Serial.println(distance);
     display.write(percentUnits);
-    String data = "{ \"distance\": \"" + String(tankPercent) + "\"}";
+    String data = "{ \"distance\": \"" + String(tankMin) + "\"}";
 
     notifyClients(data);
     lastTime = millis();
