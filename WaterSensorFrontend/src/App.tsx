@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-const gateway = `ws://10.0.0.33/ws`;
+const gateway = `ws://192.168.86.111/ws`;
 
 function App() {
   const [sensorData, setSensorData] = useState<{
