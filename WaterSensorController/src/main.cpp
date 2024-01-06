@@ -21,8 +21,8 @@ IPAddress secondaryDNS(8, 8, 4, 4); // optional
 #define ECHO_PIN 34
 #define DISPLAY_SDA 26
 #define DISPLAY_SLC 27
-#define MAX_WATER 3
-#define MIN_WATER 17
+#define MAX_WATER 220
+#define MIN_WATER 926
 
 // Timer variables
 unsigned long lastTime = 0;
@@ -115,7 +115,7 @@ void setup()
   server.begin();
 }
 
-int calculateDistanceCM()
+int calculateDistance()
 {
   // Clears the trigPin
   digitalWrite(TRIG_PIN, LOW);
@@ -127,19 +127,20 @@ int calculateDistanceCM()
   // Reads the echoPin, returns the sound wave travel time in microseconds
   long duration = pulseIn(ECHO_PIN, HIGH);
   // Calculating the distance
-  int distance = duration * 0.034 / 2;
-  return distance;
+  // int distanceCM = duration * 0.034 / 2;
+  return duration;
 }
 void loop()
 {
 
   if ((millis() - lastTime) > timerDelay)
   {
-    int distance = calculateDistanceCM();
+    int distance = calculateDistance();
+    // 926 is low 100 is high
     double tankPercent = normalizeBetween(distance, MAX_WATER, MIN_WATER, 100, 0);
     double tankMin = (tankPercent < 100) ? tankPercent : 100;
     String percentUnits = String(tankMin) + "%";
-    Serial.println(distance);
+    // Serial.println(distance);
     display.write(percentUnits);
     String data = "{ \"distance\": \"" + String(tankMin) + "\"}";
 
