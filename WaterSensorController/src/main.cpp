@@ -21,7 +21,7 @@ IPAddress secondaryDNS(8, 8, 4, 4); // optional
 #define ECHO_PIN 34
 #define DISPLAY_SDA 26
 #define DISPLAY_SLC 27
-#define MAX_WATER 220
+#define MAX_WATER 160
 #define MIN_WATER 926
 
 // Timer variables
@@ -136,11 +136,10 @@ void loop()
   if ((millis() - lastTime) > timerDelay)
   {
     int distance = calculateDistance();
-    // 926 is low 100 is high
     double tankPercent = normalizeBetween(distance, MAX_WATER, MIN_WATER, 100, 0);
     double tankMin = (tankPercent < 100) ? tankPercent : 100;
     String percentUnits = String(tankMin) + "%";
-    // Serial.println(distance);
+    Serial.println(distance);
     display.write(percentUnits);
     String data = "{ \"distance\": \"" + String(tankMin) + "\"}";
 
